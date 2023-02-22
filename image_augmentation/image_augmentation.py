@@ -2,6 +2,7 @@
 
 import argparse
 import os
+import sys
 import time
 from matplotlib import pyplot as plt
 import numpy as np
@@ -10,6 +11,9 @@ import torchvision
 from torchvision import transforms, datasets
 from torch.utils.data import DataLoader
 from tqdm import tqdm
+
+sys.path.append(os.path.join(os.path.dirname(__file__), '../src'))
+
 from utils import accuracy, load_checkpoint, save_checkpoint, ensure_dir
 
 from model import ResNet18
@@ -18,7 +22,7 @@ from tensorboardX import SummaryWriter
 # seeds
 
 torch.backends.cudnn.deterministic = True
-# np.random.seed(1)
+np.random.seed(1)
 torch.manual_seed(1)
 torch.cuda.manual_seed(1)
 

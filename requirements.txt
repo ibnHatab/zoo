@@ -1,0 +1,14 @@
+tensorboard
+tensorboardX
+tensorboard-plugin-profile
+tqdm
+torchview
+torchviz
+torchinfo
+graphviz
+matplotlib
+numpy
+jupyter
+--find-links https://download.pytorch.org/whl/torch_stable.html
+torch==1.12.1+cu116
+torchvision==0.13.1+cu116
