@@ -1,5 +1,3 @@
-
-
 import argparse
 import os
 import sys
@@ -12,15 +10,18 @@ from torchvision import transforms, datasets
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
-sys.path.append(os.path.join(os.path.dirname(__file__), '../src'))
+try: sys.path.append(os.path.join(os.path.dirname(__file__), '../src'))
+except: pass
+# %cd image_augmentation
+sys.path.append('../src')
 
 from utils import accuracy, load_checkpoint, save_checkpoint, ensure_dir
 
 from model import ResNet18
 
 from tensorboardX import SummaryWriter
-# seeds
 
+# seeds
 torch.backends.cudnn.deterministic = True
 np.random.seed(1)
 torch.manual_seed(1)

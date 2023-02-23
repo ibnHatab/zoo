@@ -49,6 +49,7 @@ if __name__ == '__main__':
 
     image = transform(image_origin)
     image = image.unsqueeze(0)
+    net = torchvision.models.resnet18(pretrained=True)
 
     if use_cuda:
         net = net.cuda()

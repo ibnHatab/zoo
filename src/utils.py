@@ -1,5 +1,9 @@
 import os
 import shutil
+import hashlib
+import tarfile
+import zipfile
+import requests
 from matplotlib import pyplot as plt
 import numpy as np
 import torch
@@ -12,6 +16,21 @@ def graph_forward(net, X, depth=1):
 
 def graph_backward(net, X):
     make_dot(net(X), params=dict(list(net.named_parameters()))).render("rnn_torchviz", format="png", view=True)
+
+class RunningMean:
+    def __init__(self):
+        self.n = 0
+        self.mean = 0.
+
+    def update(self, x):
+        self.n += 1
+        self.mean += (x - self.mean)/self.n
+
+    def __call__(self):
+        return self.mean
+
+    def __repr__(self):
+        return 'RunningMean: {}'.format(self.mean)
 
 def accuracy(y_hat, y):
     """Compute the number of correct predictions.
@@ -126,3 +145,43 @@ def ensure_dir(dir_name: str):
     """
     if not os.path.exists(dir_name):
         os.makedirs(dir_name)
+
+def download(url, folder='./data', sha1_hash=None):
+    """Download a file to folder and return the local filepath.
+    Defined in :numref:`sec_utils`"""
+    os.makedirs(folder, exist_ok=True)
+    fname = os.path.join(folder, url.split('/')[-1])
+    # Check if hit cache
+    if os.path.exists(fname) and sha1_hash:
+        sha1 = hashlib.sha1()
+        with open(fname, 'rb') as f:
+            while True:
+                data = f.read(1048576)
+                if not data:
+                    break
+                sha1.update(data)
+        if sha1.hexdigest() == sha1_hash:
+            return fname
+    # Download
+    print(f'Downloading {fname} from {url}...')
+    r = requests.get(url, stream=True, verify=True)
+    with open(fname, 'wb') as f:
+        f.write(r.content)
+    return fname
+
+def download_extract(dl_data, folder):
+    """Download and extract a zip/tar file."""
+    url, sha1_hash = dl_data
+
+    fname = download(url, folder=folder, sha1_hash=sha1_hash)
+    base_dir = os.path.dirname(fname)
+    data_dir, ext = os.path.splitext(fname)
+    if ext == '.zip':
+        fp = zipfile.ZipFile(fname, 'r')
+    elif ext in ('.tar', '.gz'):
+        fp = tarfile.open(fname, 'r')
+    else:
+        assert False, 'Only zip/tar files can be extracted.'
+    fp.extractall(base_dir)
+    return data_dir
+
