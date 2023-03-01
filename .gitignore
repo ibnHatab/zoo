@@ -3,6 +3,8 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+*rnn_torchviz*
+
 # C extensions
 *.so
 

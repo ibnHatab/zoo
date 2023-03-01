@@ -61,6 +61,17 @@ def show_images(imgs, num_rows, num_cols, titles=None, scale=1.5):
     plt.show(block=False)
     return axes
 
+def matplot_imshow(img, one_channel=False):
+    if one_channel:
+        img = img.mean(dim=0)
+    img = img / 2 + 0.5
+    npimg = img.numpy()
+    if one_channel:
+        plt.imshow(npimg, cmap='Greys')
+    else:
+        plt.imshow(np.transpose(npimg, (1, 2, 0)))
+    plt.show()
+
 def show_heatmaps(matrices, xlabel, ylabel, titles=None, figsize=(2.5, 2.5),
                   cmap='Reds'):
     """Show heatmaps of matrices."""
@@ -162,6 +173,10 @@ def download(url, folder='./data', sha1_hash=None):
                 sha1.update(data)
         if sha1.hexdigest() == sha1_hash:
             return fname
+
+    if os.path.exists(fname) and not sha1_hash:
+        return fname
+
     # Download
     print(f'Downloading {fname} from {url}...')
     r = requests.get(url, stream=True, verify=True)
