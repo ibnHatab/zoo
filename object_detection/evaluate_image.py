@@ -15,13 +15,15 @@ from model import get_instance_segmentation_model
 from data import get_transform
 from utils import load_checkpoint
 
-sys.argv[1] = 'tv_image05.png'
-img_path = sys.argv[1]
+
+# sys.argv[1] = 'tv_image05.png'
+ckpt_idx = sys.argv[1]
+img_path = sys.argv[2]
 num_classes = 2
 
 model = get_instance_segmentation_model(num_classes)
 
-ckpt = load_checkpoint('ckpt_9.pth')
+ckpt = load_checkpoint(f'ckpt_{ckpt_idx}.pth')
 model.load_state_dict(ckpt['net'])
 
 model.eval()
@@ -34,7 +36,11 @@ device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cp
 model = model.to(device)
 transformed_image = transformed_image.to(device)
 
-prediction = model([transformed_image])
+with torch.no_grad():
+    prediction = model([transformed_image])
+
+# plt.imshow(prediction[0]['masks'][0].cpu()[0].detach().numpy()); plt.show() #
+#
 if len(prediction) > 0:
     print(f"Objects detected: {len(prediction[0]['boxes'])}")
     imgd = ImageDraw.Draw(pillow_image)
