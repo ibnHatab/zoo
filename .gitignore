@@ -136,3 +136,7 @@ data/
 runs/
 rnn_torchview*
 latest_checkpoint.txt
+
+
+books
+models

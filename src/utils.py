@@ -200,3 +200,9 @@ def download_extract(dl_data, folder):
     fp.extractall(base_dir)
     return data_dir
 
+def count_params(model, return_int=False):
+    params = sum([torch.prod(torch.tensor(x.shape)).item() for x in model.parameters() if x.requires_grad])
+    if return_int:
+        return params
+    else:
+        print("There are {:,} trainable parameters in this model.".format(params))
