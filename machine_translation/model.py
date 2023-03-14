@@ -20,6 +20,19 @@ class BahdanauEncoder(nn.Module):
         self.dropout = nn.Dropout(dropout_p)
 
     def forward(self, x):
+       '''
+        Encode a source sentence.
+
+        Input:
+          - x: a (sequence length, batch size) tensor of token IDs in source language
+
+        Output:
+          - outputs: encoder outputs at each time step, given as a tensor of size
+            (sequence length, batch size, encoder hidden dim * 2)
+          - hidden: final hidden state from RNN, with directions concatenated and
+            fed through linear layer; tensor of size (batch size, decoder hidden dim)
+        '''
+
         embedded = self.dropout(self.embedding(x))
         outputs, hidden = self.gru(embedded)
 
@@ -44,6 +57,22 @@ class BahdanauAttentionQKV(nn.Module):
         self.dropout = nn.Dropout(dropout_p)
 
     def forward(self, hidden, encoder_outputs, src_mask=None):
+        '''
+        Calculate attention weights using query and key features, with
+        an optional mask for input sequences.
+
+        Inputs:
+          - hidden: most recent RNN hidden state; (B, Dec)
+          - encoder_outputs: RNN outputs at individual time steps with
+            directions concatenated; (L, B, 2*Enc)
+          - src_mask: boolean tensor of same size as source tokens (Src, B)
+            where False denotes tokens to be ignored
+
+        Outputs:
+          - attention weights: (B, src) tensor of softmax attention
+            weights to be applied to downstream values
+        '''
+
         # (B, H)
         query_out = self.query_layer(hidden)
 
@@ -86,6 +115,27 @@ class BahdanauDecoder(nn.Module):
         self.dropout = nn.Dropout(dropout_p)
 
     def forward(self, input, hidden, encoder_outputs, src_mask=None):
+        '''
+        Decode an encoder's output.
+
+        B: batch size
+        S: source sentence length
+        T: target sentence length
+        O: output size (target vocab size)
+        Enc: encoder hidden dim
+        Dec: decoder hidden dim
+        Emb: embedding dim
+
+        Inputs:
+          - input: a vector of length B giving the most recent decoded token
+          - hidden: a (B, Dec) most recent RNN hidden state
+          - encoder_outputs: (S, B, 2*Enc) sequence of outputs from encoder RNN
+
+        Outputs:
+          - output: logits for next token in the sequence (B, O)
+          - hidden: a new (B, Dec) RNN hidden state
+          - attentions: (B, S) attention weights for the current token over the source sentence
+        '''
         # (B) --> (1, B)
         input = input.unsqueeze(0)
 
