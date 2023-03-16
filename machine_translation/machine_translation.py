@@ -288,6 +288,7 @@ for epoch in tqdm(range(N_EPOCHS), desc="Epoch"):
         break
 
 best_valid_loss
+count_params(transformer)
 
 def predict_transformer(text, model,
                         src_vocab=en_vocab,

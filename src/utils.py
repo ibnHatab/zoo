@@ -50,7 +50,7 @@ def show_images(imgs, num_rows, num_cols, titles=None, scale=1.5):
     axes = axes.flatten()
     for i, (ax, img) in enumerate(zip(axes, imgs)):
         try:
-            img = img.numpy()
+            img = img.numpy().astype("uint8")
         except:
             pass
         ax.imshow(img)

@@ -1,5 +1,7 @@
 
 import math
+from matplotlib import pyplot as plt
+import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -267,11 +269,41 @@ class MultiheadAttention(nn.Module):
         return self.W_o(output_concat)
 
 
-num_hiddens, num_heads, dropouts = 100, 5, 0.1
-attention = MultiheadAttention(num_hiddens, num_heads, dropouts)
-batch_size, num_queries, num_kvpairs, valid_lens = 2, 4, 6, torch.tensor([3, 2])
+# num_hiddens, num_heads, dropouts = 100, 5, 0.1
+# attention = MultiheadAttention(num_hiddens, num_heads, dropouts)
+# batch_size, num_queries, num_kvpairs, valid_lens = 2, 4, 6, torch.tensor([3, 2])
 
-X = torch.ones((batch_size, num_queries, num_hiddens))
-Y = torch.ones((batch_size, num_kvpairs, num_hiddens))
+# X = torch.ones((batch_size, num_queries, num_hiddens))
+# Y = torch.ones((batch_size, num_kvpairs, num_hiddens))
 
-attention(X, Y, Y, valid_lens).shape == (batch_size, num_queries, num_hiddens)
+# attention(X, Y, Y, valid_lens).shape == (batch_size, num_queries, num_hiddens)
+
+class PositiionalEncoding(nn.Module):
+    def __init__(self, num_hidden, dropouts, max_len=1000) -> None:
+        super().__init__()
+        self.dropouts = nn.Dropout(dropouts)
+        self.P = torch.zeros((1, max_len, num_hidden))
+        X = torch.arange(max_len, dtype=torch.float32).reshape(-1, 1) \
+            / torch.pow(1000, torch.arange(0, num_hidden, 2, dtype=torch.float32) \
+                / num_hidden)
+        self.P[:, :, 0::2] = torch.sin(X)
+        self.P[:, :, 1::2] = torch.cos(X)
+
+    def forward(self, X):
+        X = X + self.P[:, :X.shape[1], :].to(X.device)
+        return self.dropouts(X)
+
+# num_hidden, dropouts, max_len = 100, 0.1, 1000
+# num_steps = 100
+# pos_encoding = PositiionalEncoding(num_hidden, dropouts, max_len)
+# X = pos_encoding(torch.zeros((1, num_steps, num_hidden)))
+# P = pos_encoding.P[:, :num_steps, :]
+
+# plt.plot(np.arange(num_steps), P[0, :, 6:10].detach().numpy())
+# plt.show()
+
+# from utils import show_heatmaps
+# P = P[0, :, :]
+# P = P.unsqueeze(0).unsqueeze(0)
+
+# show_heatmaps(P, xlabel='hidden dimension', ylabel='sequence position')
