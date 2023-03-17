@@ -140,6 +140,7 @@ latest_checkpoint.txt
 # tf
 *model.png
 save*.h5
+*model.h5
 
 
 books
