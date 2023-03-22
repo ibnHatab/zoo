@@ -1,5 +1,8 @@
 
+# %cd object_detection
 import sys
+sys.path.append('../src')
+
 from matplotlib import pyplot as plt
 import torch
 import torchvision
@@ -8,9 +11,7 @@ from PIL import Image
 import pycocotools.mask as mask_util
 
 
-# %cd object_detection
-sys.path.append('../src')
-from utils import save_checkpoint
+from utils import save_checkpoint, show_images
 
 from data import get_transform, PennFundalDataset
 from model import get_instance_segmentation_model
